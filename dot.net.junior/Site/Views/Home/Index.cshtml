@@ -1,31 +1,390 @@
-﻿@{
-    ViewBag.Title = "Home Page";
+﻿@model List<Model.Entidades.ClientComplet>
+
+@{
+    ViewBag.Title = "Clientes";
+    ViewData["districts"] = new List<string>()
+{
+        "AL",
+        "TO"
+    };
+
 }
+<div class="flex align-middle">
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h1>Cadastro de Clientes</h1>
+        </div>
+    </div>
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="table_clients" class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">CPF / CNPJ</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Endereço</th>
+                        <th scope="col">Cidade</th>
+                        <th scope="col">UF</th>
+                        <th scope="col">Num</th>
+                        <th scope="col">Tipo endereço</th>
+                        <th scope="col">CEP</th>
+                        <th scope="col">Numero telefone</th>
+                        <th scope="col">Tipo telefone</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody_clients">
+                    @foreach (var item in Model)
+                    {
+                        <tr data-id="@item.client.id">
+                            <th scope="row">@item.client.cpf_cnpj</th>
+                            <td>@item.client.name</td>
+                            <td>@item.client.type_client</td>
+                            <td>@item.address.road</td>
+                            <td>@item.address.city</td>
+                            <td>@item.address.district</td>
+                            <td>@item.address.number</td>
+                            <td>@item.address.type_address</td>
+                            <td>@item.address.cep</td>
+                            <td>@item.phone.ddd - @item.phone.number</td>
+                            <td>@item.phone.type_phone</td>
+                            <td>
+                                <div class="row">
+                                    <button type="button" class="btn btn-info btn-edit">Editar</button>
+                                    <button type="button" class="btn btn-warning btn-delete" data-id="@item.client.id">Excluir</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="alert_index" class="alert text-center alert_index" role="alert">
+        <div id="resposta"></div>
+    </div>
+    <div class="col-md-4 mt-5">
+        <button type="button" id="btn_add" class="btn btn-primary">Adicionar Cliente</button>
+    </div>
+</div>
+@Html.Hidden("id_client")
+<div class="modal fade" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+    @Html.Hidden("id_address")
+    @Html.Hidden("id_phones")
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="TituloModalCentralizado">Novo cliente</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="myForm">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="inputName4">Nome*</label>
+                                <input type="text" class="form-control" id="name_client" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputType">Tipo*</label>
+                                <select id="type_client" class="form-control" required>
+                                    <option selected>Pessoa Física</option>
+                                    <option>Pessoa Júridica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="inputcpf_cnpj">CPF / CNPJ*</label>
+                            <input type="text" class="form-control" id="cpf_cnpj" data-mask-for-cpf-cnpj required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="inputAddress">Endereço*</label>
+                            <input type="text" class="form-control" id="address" placeholder="Rua dos Bobos, nº 0" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="inputCEP">CEP*</label>
+                            <input type="number" class="form-control" id="cep" required>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="inputNum">Num*</label>
+                            <input type="number" class="form-control" id="Num" required>
+                        </div>
+                        <div class="form-group col-md-5">
+                            <label for="inputCity">Cidade*</label>
+                            <input type="text" class="form-control" id="city" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="inputEstado">Estado*</label>
+                                <select id="district" class="form-control" required>
+                                    @foreach (var district in ViewData["districts"] as List<string>)
+                                    {
+                                        <option>@district</option>
+                                    }
+
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="inputEstado">Tipo endereço*</label>
+                                <select id="type_address" class="form-control" required>
+                                    <option selected>Residencial</option>
+                                    <option>Comercial</option>
+
+                                </select>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="inputAddress2">Complemento</label>
+                                <input type="text" class="form-control" id="complement" placeholder="Apartamento, hotel, casa, etc.">
+                            </div>
+
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="inputCity">DDD*</label>
+                                <input type="number" class="form-control" id="ddd" required>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="inputNumber">Número*</label>
+                                <input type="number" class="form-control" id="number" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="inputEstado">Tipo*</label>
+                                <select id="type_phone" class="form-control" required>
+                                    <option selected>Residencial</option>
+                                    <option>Comercial</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row text-center">
+                            <button id="btn_save" type="submit" class="btn btn-primary ml-1">Salvar</button>
+                            <button type="button" class="btn btn-danger mr-1" data-dismiss="modal">Fechar</button>
+                        </div>
+                    </form>
+                    <div id="alert_form" class="alert text-center alert_form mt-1" role="alert">
+                        <div id="resposta_form"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+<div id="modalDelete" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="TituloModalCentralizado">Deseja excluir cliente?</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <button type="button" class="btn btn-success btn-confirm-delete" data-id="">Sim</button>
+                <button type="button" class="btn btn-danger btn-cancel-delete">Não</button>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+    <script>
+        function setTextInAlert(classe, message) {
+            $('#alert_index').attr('class', classe);
+            console.log($('.alert'));
+            $('#resposta').text(message);
+            let time = setTimeout(cleanAlert, 1500);
+        }
+
+        function setTextInAlertForm(classe, message) {
+            $('#alert_form').attr('class', classe);
+            $('#resposta_form').text(message);
+            let time = setTimeout(cleanAlertForm, 1500);
+        }
+
+        function cleanAlert() {
+            $('.alert').attr('class', 'alert text-center');
+            $('#resposta').text('');
+
+        }
+
+        function cleanAlertForm() {
+            $('#alert_form').attr('class', 'alert text-center');
+            $('#resposta_form').text('');
+
+        }
+        var form = document.querySelector('form');
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            console.log('dsfsdf')
+            var url = "http://localhost:51187/Home/Newclient";
+            console.log($('#id_client').val())
+            params_client = {
+                id: $('#id_client').val(),
+                name: $('#name_client').val(),
+                type_client: $('#type_client').val(),
+                cpf_cnpj: $('#cpf_cnpj').val().replace(/[^0-9]/g, "")
+            }
+
+            params_address = {
+                id: $('#id_address').val(),
+                road: $('#address').val(),
+                number: $('#Num').val(),
+                district: $('#district').val(),
+                city: $('#city').val(),
+                cep: $('#cep').val(),
+                type_address: $('#type_address').val(),
+                complement: $('#complement').val(),
+            }
+
+            params_phones = {
+                id: $('#id_address').val(),
+                ddd: $('#ddd').val(),
+                number: $('#number').val(),
+                type_phone: $('#type_phone').val()
+            }
+
+            params = {
+                client: params_client,
+                address: params_address,
+                phone: params_phones
+            }
+
+            $.post(url, params, function (response) {
+                console.log(response)
+                if (response.status == 'Erro') {
+                    setTextInAlertForm('alert btn-danger text-center show', response.message);
+                }
+                else {
+                    if (params_client.id == null ^ params_client.id == '') {
+                        var table = $('#table_clients').find('tbody'),
+                            line = add_client_table(response.data);
+                        table.append(line);
+                        setTextInAlert('alert btn-success text-center show', 'Cliente cadastrado com sucesso!');
+
+                    }
+                    else {
+                        var line_alter = $('#table_clients').find('tr[data-id=' + params_client.id + ']'),
+                            line = add_client_table(response.data);
+                        console.log(line_alter);
+                        line_alter.replaceWith(line);
+                        setTextInAlert('alert btn-success text-center show', 'Cliente editado com sucesso!');
+                    }
+                    clean_form();
+                    $('#ExemploModalCentralizado').modal('hide');
+                }
+            })
+        });
+
+        function add_client_table(item) {
+            var ret =
+                '<tr data-id="' + item.client.cpf_cnpj +'">' +
+                '<th scope="row">' + item.client.cpf_cnpj + '</th>' +
+                '<td>' + item.client.name + '</td>' +
+                '<td>' + item.client.type_client + '</td>' +
+                '<td>' + item.address.road + '</td>' +
+                '<td>' + item.address.city + '</td>' +
+                '<td>' + item.address.district + '</td>' +
+                '<td>' + item.address.number + '</td>' +
+                '<td>' + item.address.type_address + '</td>' +
+                '<td>' + item.address.cep + '</td>' +
+                '<td>' + item.phone.ddd + '-'+ item.phone.number + '</td>' +
+                '<td>' + item.phone.type_phone + '</td>' +
+                '<td>' +
+                '<div class="row">'+
+                '<button type="button" class="btn btn-info btn-edit">Editar</button>' +
+                '<button type="button" class="btn btn-warning btn-delete" data-id="' + item.client.id + '">Excluir</button>' +
+                '</div>'+
+                '</td>' +
+                '</tr>'
+            return ret;
+        }
+
+        function open_form(response) {
+            $('#id_client').val(response.client.id);
+            $('#name_client').val(response.client.name);
+            $('#type_client').val(response.client.type_client);
+            $('#cpf_cnpj').val(response.client.cpf_cnpj);
+            $('#id_address').val(response.address.id);
+            $('#address').val(response.address.road);
+            $('#Num').val(response.address.number);
+            $('#district').val(response.address.district);
+            $('#city').val(response.address.city);
+            $('#cep').val(response.address.cep);
+            $('#type_address').val(response.address.type_address);
+            $('#complement').val(response.address.complement);
+            $('#id_phone').val(response.phone.id);
+            $('#ddd').val(response.phone.ddd);
+            $('#number').val(response.phone.number);
+            $('#type_phone').val(response.phone.type_phone);
+        }
+
+        function clean_form() {
+            $('#myForm input').val("");
+        }
+
+        $(document).on('click', '#btn_add', function () {
+            $('#id_client').val(null);
+            $('#ExemploModalCentralizado').modal('show')
+        })
+            .on('click', '.btn-edit', function () {
+                console.log('Teste')
+                var btn = $(this),
+                    id = btn.closest('tr').attr('data-id'),
+                    url = "http://localhost:51187/Home/GetClientComplet",
+                    param = { 'id': id };
+                $.post(url, param, function (response) {
+                    if (response) {
+                        open_form(response);
+                    }
+                })
+                $('#ExemploModalCentralizado').modal('show')
+            })
+            .on('click', '.btn-delete', function () {
+                var btn = $(this).attr('data-id')
+                console.log(btn)
+                $('#modalDelete').modal({
+                    id: btn
+                })
+                $('#modalDelete').modal('show')
+                $('#modalDelete').find('.btn-confirm-delete').attr('data-id', btn)
+
+            })
+            .on('click', '.btn-confirm-delete', function () {
+                var btn = $(this),
+                    id = btn.attr('data-id'),
+                    url = "http://localhost:51187/Home/Deleteclient",
+                    param = { 'id': id };
+                $.post(url, param, function (response) {
+                    if (response) {
+                        $('#tbody_clients tr').each(function (index, element) {
+                            if (id == $(element).attr('data-id')) {
+                                element.remove();
+                                setTextInAlert('alert btn-success text-center show', 'Cliente excluído com sucesso!');
+                            }
+                        })
+                    }
+                })
+                $('#modalDelete').modal('hide')
+            }).on('click', '.btn-cancel-delete', function () {
+                $('#modalDelete').modal('hide')
+            })
+            .on('keydown', '[data-mask-for-cpf-cnpj]', function (e) {
+
+                var digit = e.key.replace(/\D/g, '');
+
+                var value = $(this).val().replace(/\D/g, '');
+
+                var size = value.concat(digit).length;
+
+                $(this).mask((size <= 11) ? '000.000.000-00' : '00.000.000/0000-00');
+            });
+    </script>
+}
